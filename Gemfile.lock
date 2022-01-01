@@ -7,6 +7,11 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    activemodel (7.0.0)
+      activesupport (= 7.0.0)
+    activerecord (7.0.0)
+      activemodel (= 7.0.0)
+      activesupport (= 7.0.0)
     activesupport (7.0.0)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
@@ -36,6 +41,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.3)
+    sqlite3 (1.4.2)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
 
@@ -43,11 +49,13 @@ PLATFORMS
   x86_64-darwin-21
 
 DEPENDENCIES
+  activerecord (~> 7.0.0)
   bundler (~> 2.0)
   pry
   rake (~> 13.0)
   relation_to_json!
   rspec (~> 3.0)
+  sqlite3 (~> 1.4.2)
 
 BUNDLED WITH
    2.2.22

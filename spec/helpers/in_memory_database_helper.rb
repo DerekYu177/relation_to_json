@@ -5,7 +5,7 @@ module Helpers
     class_methods do
       def switch_to_SQLite(&block)
         before(:all) { switch_to_in_memory_database(&block) }
-        after(:all)  { switch_back_to_test_database }
+        after(:all)  { clear_in_memory_database }
       end
     end
 
@@ -14,13 +14,21 @@ module Helpers
     def switch_to_in_memory_database(&block)
       raise 'No migration given' unless block_given?
 
-      ActiveRecord::Migration.verbose = false
-      ApplicationRecord.establish_connection(adapter: 'sqlite3', database: ':memory:')
-      ActiveRecord::Schema.define(version: 1, &block)
+      config = {
+        test: {
+          adapter: 'sqlite3',
+          database: ':memory:',
+        }
+      }
+      ActiveRecord::Base.configurations = config
+
+      ::ActiveRecord::Migration.verbose = false
+      ::ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+      ::ActiveRecord::Schema.define(version: 1, &block)
     end
 
-    def switch_back_to_test_database
-      ApplicationRecord.establish_connection(ApplicationRecord.configurations['test'])
+    def clear_in_memory_database
+      ::ActiveRecord::Base.remove_connection
     end
   end
 end

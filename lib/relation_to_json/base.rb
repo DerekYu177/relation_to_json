@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/hash/indifferent_access"
+require_relative "reflection_builder"
 
 module RelationToJSON
   class Base
@@ -19,7 +20,7 @@ module RelationToJSON
 
       attributes = Set[:id] + attributes
 
-      reflections = ReflectionBuilder.build(schema_associations, relation)
+      reflections = RelationToJSON::ReflectionBuilder.build(schema_associations, relation)
       schema_associations.each do |schema_association, association_attributes|
         reflection = reflections[schema_association]
 

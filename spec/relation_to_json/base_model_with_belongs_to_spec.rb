@@ -61,6 +61,16 @@ describe(RelationToJSON::Base) do
         expect(subject).to(eq(expected))
       end
 
+      context 'when one of the relations is nil' do
+        before do
+          FakeOverlord.first.destroy!
+        end
+
+        it 'will gracefully provide a nil entry' do
+          expect(subject.first[:fake_overlord]).to(be_nil)
+        end
+      end
+
       context 'when associations may not be unique' do
         let(:schema) do
           [ fake_overlord: [ :name ] ]
@@ -68,7 +78,7 @@ describe(RelationToJSON::Base) do
         let(:supreme_overlord) { FakeOverlord.last }
 
         before do
-          FakeEmployee.where(id: [1, 3, 4]).each do |employee|
+          FakeEmployee.where(id: [2, 4]).each do |employee|
             employee.update!(fake_overlord: supreme_overlord)
           end
         end
@@ -78,8 +88,8 @@ describe(RelationToJSON::Base) do
             {
               "id" => n+1,
               "fake_overlord" => {
-                "id" => [1, 3, 4].include?(n+1) ? supreme_overlord.id : n+1,
-                "name" => [1, 3, 4].include?(n+1) ? supreme_overlord.name : "Company#{n}",
+                "id" => [2, 4].include?(n+1) ? supreme_overlord.id : n+1,
+                "name" => [2, 4].include?(n+1) ? supreme_overlord.name : "Company#{n}",
               }
             }
           end

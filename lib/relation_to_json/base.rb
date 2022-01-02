@@ -54,14 +54,9 @@ module RelationToJSON
         case reflection
         when RelationToJSON::BelongsToReflection
         # build a temporary mapping of id => assigned_attributes
-          associated_model_primary_key_indexed_plucked_values = if reflection.polymorphic?
-            plucked_values
+          associated_model_primary_key_indexed_plucked_values = plucked_values
+              .to_h { |attrs| [attrs&.fetch(primary_key, nil), attrs] }
               .compact
-              .to_h { |attrs| [attrs[primary_key], attrs] }
-          else
-            plucked_values
-              .to_h { |attrs| [attrs[primary_key], attrs] }
-          end
 
           result.each do |record|
             foreign_key_value = record[foreign_key]

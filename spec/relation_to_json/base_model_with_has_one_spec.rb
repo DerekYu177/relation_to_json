@@ -1,31 +1,31 @@
 require 'spec_helper'
 
-class FakeUser < ActiveRecord::Base
+class FakeDeveloper < ActiveRecord::Base
   has_one :fake_keyboard
 end
 
 class FakeKeyboard < ActiveRecord::Base
-  belongs_to :fake_user
+  belongs_to :fake_developer
 end
 
 describe(RelationToJSON::Base) do
   context 'with has one relation' do
     create_new_database_with do
-      create_table :fake_users do |t|
+      create_table :fake_developers do |t|
         t.string :first_name
         t.string :last_name
       end
 
       create_table :fake_keyboards do |t|
-        t.integer :fake_user_id
+        t.integer :fake_developer_id
         t.string :model
       end
     end
 
-    describe(FakeUser, type: :model) do
+    describe(FakeDeveloper, type: :model) do
       before do
         5.times do |n|
-          FakeUser.find_or_create_by(
+          FakeDeveloper.find_or_create_by(
             first_name: "FirstName::#{n}",
             last_name: "LastName::#{n}",
           ) do |user|
@@ -35,7 +35,7 @@ describe(RelationToJSON::Base) do
         end
       end
 
-      let(:relation) { FakeUser.all }
+      let(:relation) { FakeDeveloper.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 
@@ -60,7 +60,7 @@ describe(RelationToJSON::Base) do
 
       context 'when one of the relations is nil' do
         before do
-          FakeUser.third.fake_keyboard.destroy!
+          FakeDeveloper.third.fake_keyboard.destroy!
         end
 
         it 'will gracefully provide a nil entry' do

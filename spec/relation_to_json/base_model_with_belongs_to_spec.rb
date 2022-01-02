@@ -60,6 +60,33 @@ describe(RelationToJSON::Base) do
 
         expect(subject).to(eq(expected))
       end
+
+      context 'when associations may not be unique' do
+        let(:schema) do
+          [ fake_overlord: [ :name ] ]
+        end
+        let(:supreme_overlord) { FakeOverlord.last }
+
+        before do
+          FakeEmployee.where(id: [1, 3, 4]).each do |employee|
+            employee.update!(fake_overlord: supreme_overlord)
+          end
+        end
+
+        it 'grabs all of the specified attributes' do
+          expected = 5.times.map do |n|
+            {
+              "id" => n+1,
+              "fake_overlord" => {
+                "id" => [1, 3, 4].include?(n+1) ? supreme_overlord.id : n+1,
+                "name" => [1, 3, 4].include?(n+1) ? supreme_overlord.name : "Company#{n}",
+              }
+            }
+          end
+
+          expect(subject).to(eq(expected))
+        end
+      end
     end
   end
 

@@ -51,20 +51,20 @@ Assuming that all of the relations exist, we can expect a response of the format
 [
   {
     id: 1,
-    first_name: ...
-    last_name: ...
+    first_name: ...,
+    last_name: ...,
     keyboard: {
-      make: ...
-      model: ...
+      make: ...,
+      model: ...,
     }
   },
   {
     id: 2,
-    first_name: ...
-    last_name: ...
+    first_name: ...,
+    last_name: ...,
     keyboard: {
-      make: ...
-      model: ...
+      make: ...,
+      model: ...,
     }
   }
 ]

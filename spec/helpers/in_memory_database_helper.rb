@@ -28,7 +28,6 @@ module Helpers
     end
 
     def clear_in_memory_database
-      ::ActiveRecord::Base.subclasses.each(&:delete_all)
       ::ActiveRecord::Base.remove_connection
     end
   end

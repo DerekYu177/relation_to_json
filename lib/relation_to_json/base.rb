@@ -72,12 +72,13 @@ module RelationToJSON
         when RelationToJSON::HasOneReflection
         # build a temporary mapping of id => assigned_attributes
           associated_model_foreign_key_indexed_plucked_values = plucked_values
-            .to_h { |attrs| [attrs[foreign_key], attrs] }
+            .to_h { |attrs| [attrs&.fetch(foreign_key, nil), attrs] }
+            .compact
 
           result.each do |record|
             primary_key_value = record[primary_key]
             plucked_values = associated_model_foreign_key_indexed_plucked_values[primary_key_value]
-            plucked_values.except!(foreign_key)
+            plucked_values.except!(foreign_key) if plucked_values
             record[reflection_name] = plucked_values
           end
         end

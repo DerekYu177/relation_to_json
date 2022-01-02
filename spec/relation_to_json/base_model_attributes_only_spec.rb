@@ -18,7 +18,7 @@ describe(RelationToJSON::Base) do
         end
       end
 
-      let!(:relation) { FakeUser.all }
+      let(:relation) { FakeUser.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 

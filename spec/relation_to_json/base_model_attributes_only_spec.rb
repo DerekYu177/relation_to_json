@@ -4,7 +4,7 @@ class FakeUser < ActiveRecord::Base; end
 
 describe(RelationToJSON::Base) do
   context 'with only model attributes' do
-    switch_to_SQLite do
+    create_new_database_with do
       create_table :fake_users do |t|
         t.string :first_name
         t.string :last_name

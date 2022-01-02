@@ -3,7 +3,7 @@ module Helpers
     extend ActiveSupport::Concern
 
     class_methods do
-      def switch_to_SQLite(&block)
+      def create_new_database_with(&block)
         before(:all) { switch_to_in_memory_database(&block) }
         after(:all)  { clear_in_memory_database }
       end

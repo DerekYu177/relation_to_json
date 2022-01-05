@@ -24,7 +24,7 @@ module RelationToJSON
     private
 
     def recurse_json_with_schema(transposed)
-      association_relation(transposed).as_json_with_schema(required_columns)
+      RelationToJSON::Base.new(association_relation(transposed), required_columns).as_json
     end
 
     def nested_relations?

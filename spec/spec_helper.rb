@@ -13,13 +13,13 @@
 # it.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-require 'active_record'
 require 'active_support'
 require 'pry'
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'relation_to_json'
 
 require_relative 'helpers/in_memory_database_helper'
+require_relative 'helpers/database_helper'
 
 RSpec.configure do |config|
   include Helpers::InMemoryDatabaseHelper

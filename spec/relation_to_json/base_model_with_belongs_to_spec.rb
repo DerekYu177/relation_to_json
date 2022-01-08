@@ -1,49 +1,22 @@
 require 'spec_helper'
 
-class FakeEmployee < ActiveRecord::Base
-  belongs_to :fake_overlord
-end
-
-class FakeOverlord < ActiveRecord::Base
-  has_one :fake_employee
-end
-
-class FakeAccount < ActiveRecord::Base
-end
-
-class FakeMessage < ActiveRecord::Base
-  belongs_to :sender, class_name: 'FakeAccount'
-  belongs_to :receiver, class_name: 'FakeAccount'
-end
-
 describe(RelationToJSON::Base) do
   context 'with belongs to relation' do
-    create_new_database_with do
-      create_table :fake_employees do |t|
-        t.integer :fake_overlord_id
-        t.string :first_name
-      end
-
-      create_table :fake_overlords do |t|
-        t.string :name
-      end
-    end
-
-    describe(FakeEmployee, type: :model) do
+    describe(Developer, type: :model) do
       before do
         5.times do |n|
-          FakeOverlord.find_or_create_by(name: "Company#{n}") do |fake_overlord|
-            FakeEmployee.find_or_create_by(first_name: "FirstName#{n}", fake_overlord: fake_overlord)
+          Company.create(name: "Company#{n}") do |company|
+            Developer.create(title: "Title#{n}", company: company)
           end
         end
       end
 
-      let(:relation) { FakeEmployee.all }
+      let(:relation) { Developer.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 
       let(:schema) do
-        [ :first_name, fake_overlord: [ :name ] ]
+        [ :first_name, company: [ :name ] ]
       end
 
       it 'grabs all of the specified attributes' do
@@ -51,7 +24,7 @@ describe(RelationToJSON::Base) do
           {
             "first_name" => "FirstName#{n}",
             "id" => n+1,
-            "fake_overlord" => {
+            "company" => {
               "id" => n+1,
               "name" => "Company#{n}"
             }
@@ -63,23 +36,24 @@ describe(RelationToJSON::Base) do
 
       context 'when one of the relations is nil' do
         before do
-          FakeOverlord.first.destroy!
+          Company.first.destroy!
         end
 
         it 'will gracefully provide a nil entry' do
-          expect(subject.first[:fake_overlord]).to(be_nil)
+          expect(subject.first[:company]).to(be_nil)
         end
       end
 
       context 'when associations may not be unique' do
         let(:schema) do
-          [ fake_overlord: [ :name ] ]
+          [ company: [ :name ] ]
         end
-        let(:supreme_overlord) { FakeOverlord.last }
+
+        let(:supreme_company) { Company.last }
 
         before do
-          FakeEmployee.where(id: [2, 4]).each do |employee|
-            employee.update!(fake_overlord: supreme_overlord)
+          Developer.where(id: [2, 4]).each do |employee|
+            employee.update!(company: supreme_company)
           end
         end
 
@@ -87,9 +61,9 @@ describe(RelationToJSON::Base) do
           expected = 5.times.map do |n|
             {
               "id" => n+1,
-              "fake_overlord" => {
-                "id" => [2, 4].include?(n+1) ? supreme_overlord.id : n+1,
-                "name" => [2, 4].include?(n+1) ? supreme_overlord.name : "Company#{n}",
+              "company" => {
+                "id" => [2, 4].include?(n+1) ? supreme_company.id : n+1,
+                "name" => [2, 4].include?(n+1) ? supreme_company.name : "Company#{n}",
               }
             }
           end
@@ -100,35 +74,29 @@ describe(RelationToJSON::Base) do
     end
   end
 
+  # what happens when you call attributes that don't exist?
+  # we should raise
+
   context 'with multiple belongs_to of the same class' do
-    create_new_database_with do
-      create_table :fake_accounts do |t|
-        t.string :first_name
-      end
-
-      create_table :fake_messages do |t|
-        t.integer :sender_id
-        t.integer :receiver_id
-      end
-    end
-
-    describe(FakeMessage, type: :model) do
+    describe(Message, type: :model) do
       before do
         5.times do |n|
-          FakeMessage.find_or_create_by(id: n+1) do |message|
-            sender = FakeAccount.find_or_create_by(first_name: "FirstName::Sender::#{n}")
-            receiver = FakeAccount.find_or_create_by(first_name: "FirstName::Receiver::#{n}")
+          company = Company.create!(name: "Company#{n}")
+
+          Message.create!(id: n+1, content: "Content#{n}") do |message|
+            sender = Developer.create!(title: "Title::Sender::#{n}", company: company)
+            receiver = Developer.create!(title: "Title::Receiver::#{n}", company: company)
             message.update!(sender: sender, receiver: receiver)
           end
         end
       end
 
-      let(:relation) { FakeMessage.all }
+      let(:relation) { Message.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 
       let(:schema) do
-        [ sender: [ :first_name ], receiver: [ :first_name ] ]
+        [ sender: [ :title ], receiver: [ :title ] ]
       end
 
       it 'grabs all of the specified attributes' do
@@ -136,11 +104,11 @@ describe(RelationToJSON::Base) do
           {
             "id" => n+1,
             "sender" => {
-              "first_name" => "FirstName::Sender::#{n}",
+              "title" => "Title::Sender::#{n}",
               "id" => (2*n)+1,
             },
             "receiver" => {
-              "first_name" => "FirstName::Receiver::#{n}",
+              "title" => "Title::Receiver::#{n}",
               "id" => (2*n)+2,
             }
           }

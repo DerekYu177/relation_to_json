@@ -3,14 +3,14 @@ class User < ActiveRecord::Base
 end
 
 class Developer < ActiveRecord::Base
-  has_one :user, foreign_key: :userable_id, inverse_of: :user, as: :userable
+  has_one :user, foreign_key: :userable_id, inverse_of: :userable, as: :userable
   belongs_to :company
   has_many :sent_messages, class_name: 'Message', foreign_key: 'sender_id'
   has_many :received_messages, class_name: 'Message', foreign_key: 'receiver_id'
 end
 
 class Customer < ActiveRecord::Base
-  has_one :user, foreign_key: :userable_id, inverse_of: :user, as: :userable
+  has_one :user, foreign_key: :userable_id, inverse_of: :userable, as: :userable
 end
 
 class Company < ActiveRecord::Base

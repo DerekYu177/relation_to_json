@@ -12,7 +12,7 @@ ActiveRecord::Schema.define(version: 2022_01_01_000001) do
   end
 
   create_table :developers do |t|
-    t.belongs_to :company, null: false
+    t.belongs_to :company
     t.string :title
   end
 

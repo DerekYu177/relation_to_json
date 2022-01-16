@@ -16,13 +16,13 @@ describe(RelationToJSON::Base) do
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 
       let(:schema) do
-        [ :first_name, company: [ :name ] ]
+        [ :title, company: [ :name ] ]
       end
 
       it 'grabs all of the specified attributes' do
         expected = 5.times.map do |n|
           {
-            "first_name" => "FirstName#{n}",
+            "title" => "Title#{n}",
             "id" => n+1,
             "company" => {
               "id" => n+1,

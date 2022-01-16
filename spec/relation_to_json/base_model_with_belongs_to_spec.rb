@@ -34,6 +34,12 @@ describe(RelationToJSON::Base) do
         expect(subject).to(eq(expected))
       end
 
+      it 'raises if attribute requested is not a valid attribute' do
+        schema = [:invalid_attribute]
+        expect { RelationToJSON::Base.new(relation, schema).as_json }
+          .to(raise_error(InvalidSchemaError))
+      end
+
       context 'when one of the relations is nil' do
         before do
           Company.first.destroy!

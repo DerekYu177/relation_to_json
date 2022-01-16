@@ -32,6 +32,8 @@ module RelationToJSON
         end
       end
 
+      raise_unless_all_attributes_present_on_model!(relation, attributes)
+
       result = relation
         .pluck(*attributes)
         .map { |plucked| attributes.zip(Array.wrap(plucked)).to_h }
@@ -106,6 +108,16 @@ module RelationToJSON
       end
 
       result
+    end
+
+    def raise_unless_all_attributes_present_on_model!(relation, requested)
+      available = Set[*relation.klass.column_names]
+      requested = Set[*requested.map(&:to_s)]
+      return if requested <= available
+
+      missing = requested - available
+
+      raise InvalidSchemaError.new(missing.to_a, relation.klass)
     end
   end
 end

@@ -35,6 +35,7 @@ module RelationToJSON
       raise_unless_all_attributes_present_on_model!(relation, attributes)
 
       result = relation
+        .reload # if when the relation isn't loaded, it may have strange ordering
         .pluck(*attributes)
         .map { |plucked| attributes.zip(Array.wrap(plucked)).to_h }
 

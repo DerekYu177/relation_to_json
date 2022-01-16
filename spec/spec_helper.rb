@@ -18,11 +18,9 @@ require 'pry'
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'relation_to_json'
 
-require_relative 'helpers/in_memory_database_helper'
 require_relative 'helpers/database_helper'
 
 RSpec.configure do |config|
-  include Helpers::InMemoryDatabaseHelper
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

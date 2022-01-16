@@ -1,24 +1,15 @@
 require 'spec_helper'
 
-class FakeUser < ActiveRecord::Base; end
-
 describe(RelationToJSON::Base) do
   context 'with only model attributes' do
-    create_new_database_with do
-      create_table :fake_users do |t|
-        t.string :first_name
-        t.string :last_name
-      end
-    end
-
-    describe(FakeUser, type: :model) do
+    describe(User, type: :model) do
       before do
         5.times do |n|
-          FakeUser.find_or_create_by(first_name: "FirstName#{n}", last_name: "LastName#{n}")
+          User.find_or_create_by(first_name: "FirstName#{n}", last_name: "LastName#{n}")
         end
       end
 
-      let(:relation) { FakeUser.all }
+      let(:relation) { User.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 

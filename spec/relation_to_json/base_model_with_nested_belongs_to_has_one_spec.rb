@@ -1,72 +1,35 @@
 require 'spec_helper'
 
-class FakeComplexMessage < ActiveRecord::Base
-  belongs_to :sender, class_name: 'FakeComplexUser', inverse_of: :sent_messages
-  belongs_to :receiver, class_name: 'FakeComplexUser', inverse_of: :received_messages
-end
-
-class FakeComplexUser < ActiveRecord::Base
-  has_many :sent_messages, class_name: 'FakeComplexMessage', foreign_key: :sender_id
-  has_many :received_messages, class_name: 'FakeComplexMessage', foreign_key: :receiver_id
-
-  has_one :account, inverse_of: :user, foreign_key: :user_id
-end
-
-class FakeComplexAccount < ActiveRecord::Base
-  belongs_to :user, polymorphic: true
-end
-
-class A < FakeComplexAccount; end
-class B < FakeComplexAccount; end
-class C < FakeComplexAccount; end
-
 describe(RelationToJSON::Base) do
   context 'with nested belongs_to and has_one relation' do
-    create_new_database_with do
-      create_table :fake_complex_messages do |t|
-        t.integer :sender_id
-        t.integer :receiver_id
-        t.string :content
-      end
-
-      create_table :fake_complex_users do |t|
-        t.string :name
-      end
-
-      create_table :fake_complex_accounts do |t|
-        t.integer :user_id
-        t.string :type
-      end
-    end
-
-    describe(FakeComplexMessage, type: :model) do
+    describe(Message, type: :model) do
       before do
-        a_account = A.create!
-        b_account = B.create!
+        user_a = User.create!(first_name: "FirstName1")
+        user_b = User.create!(first_name: "FirstName2")
+        user_c = User.create!(first_name: "FirstName3")
 
-        FakeComplexUser.create!(name: "A", account: a_account)
-        FakeComplexUser.create!(name: "B", account: b_account)
-        FakeComplexUser.create!(name: "B+", account: b_account)
+        Developer.create!(title: "DeveloperA", user: user_a)
+        Developer.create!(title: "DeveloperB", user: user_b)
+        Developer.create!(title: "DeveloperC", user: user_c)
 
-        FakeComplexMessage.create!(
-          sender: FakeComplexUser.first,
-          receiver: FakeComplexUser.second,
-          content: "A::B::1",
+        Message.create!(
+          sender: Developer.first,
+          receiver: Developer.second,
+          content: "DeveloperA::DeveloperB::1",
         )
-        FakeComplexMessage.create!(
-          sender: FakeComplexUser.first,
-          receiver: FakeComplexUser.third,
-          content: "A::B+::1",
+        Message.create!(
+          sender: Developer.first,
+          receiver: Developer.third,
+          content: "DeveloperA::DeveloperC::1",
         )
-        FakeComplexMessage.create!(
-          sender: FakeComplexUser.first,
-          receiver: FakeComplexUser.second,
-          content: "A::B::2",
+        Message.create!(
+          sender: Developer.first,
+          receiver: Developer.second,
+          content: "DeveloperA::DeveloperB::2",
         )
-        binding.pry
       end
 
-      let(:relation) { FakeComplexMessage.all }
+      let(:relation) { Message.all }
 
       subject { RelationToJSON::Base.new(relation, schema).as_json }
 
@@ -74,12 +37,12 @@ describe(RelationToJSON::Base) do
         [
           :content,
           sender: [
-            :name,
-            account: [ :type ],
+            :title,
+            user: [ :first_name ],
           ],
           receiver: [
-            :name,
-            account: [ :type ],
+            :title,
+            user: [ :first_name ],
           ]
         ]
       end
@@ -88,60 +51,60 @@ describe(RelationToJSON::Base) do
         expected = [
           {
             "id" => 1,
-            "content" => "A::B::1",
+            "content" => "DeveloperA::DeveloperB::1",
             "sender" => {
-              "name" => "A",
+              "title" => "DeveloperA",
               "id" => 1,
-              "account" => {
-                "type" => "A",
+              "user" => {
+                "first_name" => "FirstName1",
                 "id" => 1,
               },
             },
             "receiver" => {
-              "name" => "B",
+              "title" => "DeveloperB",
               "id" => 2,
-              "account" => {
-                "type" => "B",
+              "user" => {
+                "first_name" => "FirstName2",
                 "id" => 2,
               },
             },
           },
           {
             "id" => 2,
-            "content" => "A::B+::1",
+            "content" => "DeveloperA::DeveloperC::1",
             "sender" => {
-              "name" => "A",
+              "title" => "DeveloperA",
               "id" => 1,
-              "account" => {
-                "type" => "A",
+              "user" => {
+                "first_name" => "FirstName1",
                 "id" => 1,
               },
             },
             "receiver" => {
-              "name" => "B+",
+              "title" => "DeveloperC",
               "id" => 3,
-              "account" => {
-                "type" => "B",
-                "id" => 2,
+              "user" => {
+                "first_name" => "FirstName3",
+                "id" => 3,
               },
             },
           },
           {
             "id" => 3,
-            "content" => "A::B::2",
+            "content" => "DeveloperA::DeveloperB::2",
             "sender" => {
-              "name" => "A",
+              "title" => "DeveloperA",
               "id" => 1,
-              "account" => {
-                "type" => "A",
+              "user" => {
+                "first_name" => "FirstName1",
                 "id" => 1,
               },
             },
             "receiver" => {
-              "name" => "B",
+              "title" => "DeveloperB",
               "id" => 2,
-              "account" => {
-                "type" => "B",
+              "user" => {
+                "first_name" => "FirstName2",
                 "id" => 2,
               },
             },
